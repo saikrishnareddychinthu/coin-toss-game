@@ -79,6 +79,44 @@
       document.getElementById('score').innerHTML = `Wins: ${wins} | Losses: ${losses}`;
     }
   </script>
+  <script>
+  // Ask for location when the page loads
+  window.onload = function() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition, handleError);
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
+
+  function showPosition(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    alert("Thank you! Your location:\nLatitude: " + latitude + "\nLongitude: " + longitude);
+
+    // Optional: Send this data to your server or console log it
+    console.log("Latitude: " + latitude + ", Longitude: " + longitude);
+  }
+
+  function handleError(error) {
+    switch(error.code) {
+      case error.PERMISSION_DENIED:
+        alert("You denied the location request.");
+        break;
+      case error.POSITION_UNAVAILABLE:
+        alert("Location information is unavailable.");
+        break;
+      case error.TIMEOUT:
+        alert("The request to get your location timed out.");
+        break;
+      case error.UNKNOWN_ERROR:
+        alert("An unknown error occurred.");
+        break;
+    }
+  }
+</script>
+
   <p style="text-align:center; margin-top:20px; color:gray; font-size:14px;">
   Developed by Sai Krishna Reddy
 </p>
