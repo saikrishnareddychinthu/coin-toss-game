@@ -4,6 +4,31 @@
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-X02TNXZZSE"></script>
 <script>
+  function sendLocationToSheet(latitude, longitude) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+    .then(response => response.json())
+    .then(locationData => {
+        const data = {
+            city: locationData.address.city || locationData.address.town || locationData.address.village || "",
+            state: locationData.address.state || "",
+            country: locationData.address.country || "",
+            latitude: latitude,
+            longitude: longitude
+        };
+
+        fetch('https://script.google.com/macros/s/AKfycbxUSOxJgfCCP1tYcYnSq7DhS2fJaQkaqXTCne-WAFMYTG-kngXW8Tod0E17VAPldd-8-A/exec', {  // Replace with your actual Web App URL
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(response => console.log("Location sent to sheet!"));
+    })
+    .catch(err => console.error(err));
+}
+
+</script>
+<script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -79,69 +104,7 @@
       document.getElementById('score').innerHTML = `Wins: ${wins} | Losses: ${losses}`;
     }
   </script>
- <script>
-  const sheetURL = "https://script.google.com/macros/s/AKfycbyqD4FMf_p1usChYvJNZX0P3oBBkUMqDVZIuQCQHxr3y7eZU8wvAX9lwyhqPDMhGXywpw/exec"; // Replace with your script URL
-
-  window.onload = function() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(showPosition, handleError);
-    } else {
-      alert("Geolocation is not supported by this browser.");
-    }
-  }
-
-  function showPosition(position) {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-      .then(response => response.json())
-      .then(data => {
-        const city = data.address.city || data.address.town || data.address.village || "Unknown city";
-        const state = data.address.state || "Unknown state";
-        const country = data.address.country || "Unknown country";
-
-        // Send data to Google Sheet
-        fetch(sheetURL, {
-          method: "POST",
-          body: JSON.stringify({
-            city: city,
-            state: state,
-            country: country,
-            latitude: latitude,
-            longitude: longitude
-          }),
-          headers: {
-            "Content-Type": "application/json"
-          }
-        });
-
-        alert(`Welcome! Your location has been saved.\nCity: ${city}\nState: ${state}\nCountry: ${country}`);
-      })
-      .catch(error => {
-        console.error("Error in reverse geocoding: ", error);
-      });
-  }
-
-  function handleError(error) {
-    switch(error.code) {
-      case error.PERMISSION_DENIED:
-        alert("You denied the location request.");
-        break;
-      case error.POSITION_UNAVAILABLE:
-        alert("Location information is unavailable.");
-        break;
-      case error.TIMEOUT:
-        alert("The request to get your location timed out.");
-        break;
-      case error.UNKNOWN_ERROR:
-        alert("An unknown error occurred.");
-        break;
-    }
-  }
-</script>
-
-
+ 
   <p style="text-align:center; margin-top:20px; color:gray; font-size:14px;">
   Developed by Sai Krishna Reddy
 </p>
