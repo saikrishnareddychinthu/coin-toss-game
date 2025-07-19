@@ -79,7 +79,68 @@
       document.getElementById('score').innerHTML = `Wins: ${wins} | Losses: ${losses}`;
     }
   </script>
- 
+ <script>
+  const sheetURL = https://script.google.com/macros/s/AKfycbyDwmWf0ld5chsh22C2414GAm5Ybefurvv73RFXrBRa0qtf9r9bZnk5U1V__NTpWYeqSQ/exec; // Replace with your script URL
+
+  window.onload = function() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition, handleError);
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
+
+  function showPosition(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+      .then(response => response.json())
+      .then(data => {
+        const city = data.address.city || data.address.town || data.address.village || "Unknown city";
+        const state = data.address.state || "Unknown state";
+        const country = data.address.country || "Unknown country";
+
+        // Send data to Google Sheet
+        fetch(sheetURL, {
+          method: "POST",
+          body: JSON.stringify({
+            city: city,
+            state: state,
+            country: country,
+            latitude: latitude,
+            longitude: longitude
+          }),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        alert(`Welcome! Your location has been saved.\nCity: ${city}\nState: ${state}\nCountry: ${country}`);
+      })
+      .catch(error => {
+        console.error("Error in reverse geocoding: ", error);
+      });
+  }
+
+  function handleError(error) {
+    switch(error.code) {
+      case error.PERMISSION_DENIED:
+        alert("You denied the location request.");
+        break;
+      case error.POSITION_UNAVAILABLE:
+        alert("Location information is unavailable.");
+        break;
+      case error.TIMEOUT:
+        alert("The request to get your location timed out.");
+        break;
+      case error.UNKNOWN_ERROR:
+        alert("An unknown error occurred.");
+        break;
+    }
+  }
+</script>
+
 
   <p style="text-align:center; margin-top:20px; color:gray; font-size:14px;">
   Developed by Sai Krishna Reddy
