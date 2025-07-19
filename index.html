@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Coin Toss Game</title>
+  <style>
+    body {
+      background: #121212;
+      color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #1f1f1f;
+      color: #fff;
+      border: 2px solid #4caf50;
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #4caf50;
+    }
+
+    .result, .score {
+      margin-top: 20px;
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Coin Toss Game</h1>
+
+  <button onclick="playGame('heads')">Heads</button>
+  <button onclick="playGame('tails')">Tails</button>
+
+  <div class="result" id="result"></div>
+  <div class="score" id="score">
+    Wins: 0 | Losses: 0
+  </div>
+
+  <script>
+    let wins = 0;
+    let losses = 0;
+
+    function playGame(userGuess) {
+      const randomNumber = Math.random();
+      const coinResult = randomNumber < 0.5 ? 'heads' : 'tails';
+
+      if (userGuess === coinResult) {
+        wins++;
+        document.getElementById('result').innerHTML = `You chose <b>${userGuess}</b>. Coin is <b>${coinResult}</b>. <span style="color:lightgreen">You Win!</span>`;
+      } else {
+        losses++;
+        document.getElementById('result').innerHTML = `You chose <b>${userGuess}</b>. Coin is <b>${coinResult}</b>. <span style="color:red">You Lose!</span>`;
+      }
+
+      document.getElementById('score').innerHTML = `Wins: ${wins} | Losses: ${losses}`;
+    }
+  </script>
+
+</body>
+</html>
